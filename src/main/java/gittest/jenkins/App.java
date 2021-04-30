@@ -10,5 +10,6 @@ public class App
     {
         System.out.println( "Hello World!" );
         System.out.println("Welcome to the test application!");
+        System.out.println("Maybe one day you can interact with the program here.");
     }
 }
