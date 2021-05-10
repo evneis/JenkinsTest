@@ -1,6 +1,24 @@
 pipeline {
     agent any
     stages {
+        stage('Test')
+            agent{
+                docker{
+                    image 'maven:3.5.4'
+                }
+            }
+            steps{
+                sh 'mvn clean install'
+                script{
+                    try{
+                        sh 'mvn test -B'
+                    } catch(Exception e) {
+                        step([$class: 'JUnitResultArchiver', testResults: './target/surefire-reports/TEST.xml'])
+                        throw e
+                    }
+                }
+            }
+        }
         stage('Package') {
             agent{
                 docker{
@@ -12,23 +30,7 @@ pipeline {
                 sh 'mvn package' 
             }
         }
-        stage('Test') {
-            agent{
-                docker{
-                    image 'maven:3.5.4'
-                }
-            }
-            steps{
-                script{
-                    try{
-                        sh 'mvn test -B'
-                    } catch(Exception e) {
-                        step([$class: 'JUnitResultArchiver', testResults: './target/surefire-reports/TEST.xml'])
-                        throw e
-                    }
-                }
-            }
-        }
+
         stage('Build') {
             agent{ dockerfile true}
             steps {
